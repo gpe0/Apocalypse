@@ -10,43 +10,34 @@ public class playerLookAround : MonoBehaviour
     public playerMovement playerMov;
     public Transform rightArm;
 
-    private float rotationCamera = 0f;
-    private float rotationArm = 0f;
+    private float rotation = 0f;
     private bool isPistolEquiped = false;
+    private bool start = true;
     // Start is called before the first frame update
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
     }
+ 
 
     // Update is called once per frame
     void Update()
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensivity * Time.deltaTime;
+        rotation -= mouseY;
+        rotation = Mathf.Clamp(rotation, -65f, 65f);
 
-        rotationCamera -= mouseY;
-        rotationCamera = Mathf.Clamp(rotationCamera, -65f, 65f);
-
-        rotationArm += mouseY;
-        rotationArm = Mathf.Clamp(rotationArm, -155f, -25f);
-
-        transform.localRotation = Quaternion.Euler(rotationCamera, 0f, 0f);
+        transform.localRotation = Quaternion.Euler(rotation, 0f, 0f);
         
         playerBody.Rotate(Vector3.up * mouseX);
 
-
+        
         if (playerMov.pistolEquiped)
         {
-            rightArm.localRotation = Quaternion.Euler(rotationArm, -173.54f, 7.853f);
+            rightArm.localRotation = Quaternion.Euler(-rotation - 85f, -173.54f, 7.853f);
         }
-        else
-        {
-            rightArm.localRotation = Quaternion.Euler(180f, 180f, 18f);
-        }
-        
-        
+
     }
 }
