@@ -18,6 +18,7 @@ public class playerMovement : MonoBehaviour
     private bool jumped = false;
     private float runMultiplier = 1f;
     private bool reseted = false;
+    private bool spaced = false;
 
     // Start is called before the first frame update
     void Start()
@@ -40,6 +41,14 @@ public class playerMovement : MonoBehaviour
             runMultiplier = 1f;
         }
 
+        if (Input.GetKeyDown(KeyCode.Space) && groundCheck)
+        {
+            jumped = true;
+            groundCheck = false;
+            spaced = true;
+        }
+
+
         if (Input.GetKeyDown(KeyCode.Alpha1) && (!jumped))
         {
             if (pistolEquiped)
@@ -57,6 +66,7 @@ public class playerMovement : MonoBehaviour
                 rightArmAnim.enabled = false;
             }
         }
+
     }
     void FixedUpdate()
     {
@@ -69,13 +79,11 @@ public class playerMovement : MonoBehaviour
 
         movement = movement + new Vector3(0f, rb.velocity.y, 0f);
 
-        if (Input.GetKeyDown(KeyCode.Space) && groundCheck)
+        if (spaced)
         {
-            jumped = true;
-            groundCheck = false;
-            movement += new Vector3(0f, movementSpeed * Time.deltaTime, 0f);
+            spaced = false;
+            movement += new Vector3(0f, movementSpeed * Time.deltaTime / 1.4f, 0f);
         }
-
 
         if (groundCheck && jumped)
         {
@@ -90,18 +98,38 @@ public class playerMovement : MonoBehaviour
         }
         else if (movementHorizontal != 0f || movementVertical != 0f)
         {
-            if (reseted)
+            if (isRunning)
             {
-                playerAnim.Play("Walk", 0, 0f);
-                rightArmAnim.Play("WalkArm", 0, 0f);
-                reseted = false;
+                playerAnim.SetFloat("multiplier", 2f);
+                rightArmAnim.SetFloat("multiplier", 2f);
+                if (reseted)
+                {
+                    playerAnim.Play("Walk", 0, 0f);
+                    rightArmAnim.Play("WalkArm", 0, 0f);
+                    reseted = false;
+                }
+                else
+                {
+                    playerAnim.Play("Walk");
+                    rightArmAnim.Play("WalkArm");
+                }
             }
             else
             {
-                playerAnim.Play("Walk");
-                rightArmAnim.Play("WalkArm");
-            }
-            
+                playerAnim.SetFloat("multiplier", 1f);
+                rightArmAnim.SetFloat("multiplier", 1f);
+                if (reseted)
+                {
+                    playerAnim.Play("Walk", 0, 0f);
+                    rightArmAnim.Play("WalkArm", 0, 0f);
+                    reseted = false;
+                }
+                else
+                {
+                    playerAnim.Play("Walk");
+                    rightArmAnim.Play("WalkArm");
+                }
+            }      
         }
         else if (pistolEquiped)
         {
@@ -132,4 +160,5 @@ public class playerMovement : MonoBehaviour
             groundCheck = true;
         }
     }
+
 }

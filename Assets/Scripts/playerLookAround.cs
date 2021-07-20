@@ -9,6 +9,7 @@ public class playerLookAround : MonoBehaviour
     public Transform playerBody;
     public playerMovement playerMov;
     public Transform rightArm;
+    public Transform head;
 
     private float rotation = 0f;
     private bool isPistolEquiped = false;
@@ -29,8 +30,8 @@ public class playerLookAround : MonoBehaviour
         rotation -= mouseY;
         rotation = Mathf.Clamp(rotation, -65f, 65f);
 
-        transform.localRotation = Quaternion.Euler(rotation, 0f, 0f);
-        
+        head.localRotation = Quaternion.Euler(rotation, 0f, 0f);
+
         playerBody.Rotate(Vector3.up * mouseX);
 
         
