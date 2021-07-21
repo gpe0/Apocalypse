@@ -11,12 +11,14 @@ public class pistolScript : MonoBehaviour
     public Transform bulletSpawn;
     public ParticleSystem shootEffect;
     public ParticleSystem muzzleFlash;
+    public ParticleSystem smoke;
     public GameObject impactPlayer;
     public GameObject impact;
+    public bool headshot = false;
 
 
-    private float impactForce = 3000f;
-    private float range = 27f;
+    private float impactForce = 120f;
+    private float range = 40f;
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +36,7 @@ public class pistolScript : MonoBehaviour
             anim.Play("PistolShoot");
             shootEffect.Play();
             muzzleFlash.Play();
+            smoke.Play();
             Shoot();
         }
     }
@@ -42,15 +45,26 @@ public class pistolScript : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out hit, range))
         {
+            if (hit.point.y - transform.position.y >= 0.33f)
+            {
+                headshot = true;
+            }
             enemyScript target = hit.transform.GetComponent<enemyScript>();
             if (target != null)
             {
-                target.TakeDamage();
+                target.TakeDamage(hit);
+                headshot = false;
+            }
+            if (hit.transform.tag == "Enemy")
+            {
                 GameObject impactPlayerGO = Instantiate(impactPlayer, hit.point, Quaternion.LookRotation(hit.normal));
+                impactPlayerGO.transform.SetParent(hit.transform);
+                impactPlayerGO.transform.localScale = new Vector3(1f, 1f, 1f);
                 Destroy(impactPlayerGO, 2f);
-
             }
             GameObject impactGO = Instantiate(impact, hit.point, Quaternion.LookRotation(hit.normal));
+            impactGO.transform.SetParent(hit.transform);
+            impactGO.transform.localScale = new Vector3(1f, 1f, 1f);
             Destroy(impactGO, 2f);
 
             if (hit.rigidbody != null)

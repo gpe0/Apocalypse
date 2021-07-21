@@ -13,7 +13,6 @@ public class playerLookAround : MonoBehaviour
 
     private float rotation = 0f;
     private bool isPistolEquiped = false;
-    private bool start = true;
     // Start is called before the first frame update
     void Start()
     {
