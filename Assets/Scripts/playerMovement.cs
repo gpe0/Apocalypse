@@ -10,6 +10,7 @@ public class playerMovement : MonoBehaviour
     public Animator playerAnim;
     public Animator rightArmAnim;
     public bool pistolEquiped = false;
+    public RectTransform stamina;
 
 
     private Rigidbody rb;
@@ -19,6 +20,9 @@ public class playerMovement : MonoBehaviour
     private float runMultiplier = 1f;
     private bool reseted = false;
     private bool spaced = false;
+    private float staminaDrain = 30f;
+    private float staminaRegen = 15f;
+    private float jumpStaminaDrain = 15f;
 
     // Start is called before the first frame update
     void Start()
@@ -29,23 +33,50 @@ public class playerMovement : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift) && groundCheck)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && groundCheck && stamina.sizeDelta.x > 30f)
         {
             isRunning = true;
             runMultiplier = 2f;
         }
 
-        if (Input.GetKeyUp(KeyCode.LeftShift))
+        if (isRunning && (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0))
+        {
+            if (stamina.sizeDelta.x < 0f)
+            {
+                stamina.sizeDelta = new Vector2(0f, stamina.sizeDelta.y);
+            }
+            else
+            {
+                stamina.sizeDelta = new Vector2(stamina.sizeDelta.x - Time.deltaTime * staminaDrain, 0f) + new Vector2(0f, stamina.sizeDelta.y);
+                stamina.position = new Vector3(stamina.position.x + Time.deltaTime * staminaDrain / -2, stamina.position.y, stamina.position.z);
+            }   
+        }
+        if (Input.GetKeyUp(KeyCode.LeftShift) || stamina.sizeDelta.x <= 0f)
         {
             isRunning = false;
             runMultiplier = 1f;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && groundCheck)
+        if ((!isRunning || (Input.GetAxis("Horizontal") == 0 && Input.GetAxis("Vertical") == 0)) && !jumped)
+        {
+            if (stamina.sizeDelta.x >= 200f)
+            {
+                stamina.sizeDelta = new Vector2(200f, stamina.sizeDelta.y);
+            }
+            else
+            {
+                stamina.sizeDelta = new Vector2(stamina.sizeDelta.x + Time.deltaTime * staminaRegen, 0f) + new Vector2(0f, stamina.sizeDelta.y);
+                stamina.position = new Vector3(stamina.position.x + Time.deltaTime * staminaRegen / 2, stamina.position.y, stamina.position.z);
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space) && groundCheck && stamina.sizeDelta.x > jumpStaminaDrain)
         {
             jumped = true;
             groundCheck = false;
             spaced = true;
+            stamina.sizeDelta = new Vector2(stamina.sizeDelta.x - jumpStaminaDrain, 0f) + new Vector2(0f, stamina.sizeDelta.y);
+            stamina.position = new Vector3(stamina.position.x + jumpStaminaDrain / -2, stamina.position.y, stamina.position.z);
         }
 
 
