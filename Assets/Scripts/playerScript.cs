@@ -39,7 +39,7 @@ public class playerScript : MonoBehaviour
 
     public void TakeDamage()
     {
-        float rand = Random.RandomRange(0f, 1f);
+        float rand = Random.Range(0f, 1f);
         if (rand <= 0.4f)
         {
             if (!isBleeding)

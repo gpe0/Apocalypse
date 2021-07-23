@@ -15,7 +15,8 @@ public class pistolScript : MonoBehaviour
     public GameObject impactPlayer;
     public GameObject impact;
     public bool headshot = false;
-
+    public bool shot = false;
+    
 
     private float impactForce = 120f;
     private float range = 40f;
@@ -38,6 +39,11 @@ public class pistolScript : MonoBehaviour
             muzzleFlash.Play();
             smoke.Play();
             Shoot();
+            shot = true;
+        }
+        if (shot && anim.GetCurrentAnimatorStateInfo(0).IsName("PistolShoot"))
+        {
+            shot = false;
         }
     }
     void Shoot()
