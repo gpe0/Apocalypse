@@ -13,6 +13,7 @@ public class playerMovement : MonoBehaviour
     public bool pistolEquiped = false;
     public bool isCrouched = false;
     public RectTransform stamina;
+    public uiHandler uiHand;
 
 
     private Rigidbody rb;
@@ -97,14 +98,15 @@ public class playerMovement : MonoBehaviour
                 pistolEquiped = false;
                 pistol.SetActive(false);
                 rightArmAnim.enabled = true;
-
                 reseted = true;
+                uiHand.ChangeWeaponInfo();
             }
             else
             {
                 pistolEquiped = true;
                 pistol.SetActive(true);
                 rightArmAnim.enabled = false;
+                uiHand.ChangeWeaponInfo();
             }
         }
 
@@ -173,9 +175,36 @@ public class playerMovement : MonoBehaviour
         {
             if (isCrouched)
             {
-                playerAnim.Play("CrouchIdle");
-                rightArmAnim.Play("CrouchIdleArm");
-                leftArmAnim.Play("CrouchIdleLeftArm");
+                if (movementHorizontal != 0f || movementVertical != 0f)
+                {
+                    if (reseted)
+                    {
+                        playerAnim.Play("CrouchWalk", 0, 0f);
+                        rightArmAnim.Play("CrouchWalkArm", 0, 0f);
+                        leftArmAnim.Play("CrouchWalkLeftArm", 0, 0f);
+                        reseted = false;
+                    }
+                    else
+                    {
+                        playerAnim.Play("CrouchWalk");
+                        rightArmAnim.Play("CrouchWalkArm");
+                        leftArmAnim.Play("CrouchWalkLeftArm");
+                    }
+                } else
+                {
+                    if (reseted)
+                    {
+                        playerAnim.Play("CrouchIdle", 0, 0f);
+                        rightArmAnim.Play("CrouchIdleArm", 0, 0f);
+                        leftArmAnim.Play("CrouchIdleLeftArm", 0, 0f);
+                    }
+                    else
+                    {
+                        playerAnim.Play("CrouchIdle");
+                        rightArmAnim.Play("CrouchIdleArm");
+                        leftArmAnim.Play("CrouchIdleLeftArm");
+                    }      
+                }  
             }
             else if (jumped)
             {
