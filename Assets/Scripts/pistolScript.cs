@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+
 
 public class pistolScript : MonoBehaviour
 {
@@ -15,18 +15,17 @@ public class pistolScript : MonoBehaviour
     public ParticleSystem smoke;
     public GameObject impactPlayer;
     public GameObject impact;
-    public Text bullets;
+    public playerMovement playerMov;
     public bool headshot = false;
     public bool shot = false;
 
-    private int bulletsNum;
+    
     private float impactForce = 120f;
     private float range = 40f;
 
     // Start is called before the first frame update
     void Start()
     {
-        bulletsNum = int.Parse(bullets.text);
     }
 
     // Update is called once per frame
@@ -34,16 +33,15 @@ public class pistolScript : MonoBehaviour
     {
         transform.position = pistolTracker.position;
         transform.rotation = pistolTracker.rotation;
-
-        if (Input.GetMouseButtonDown(0) && bulletsNum != 0)
+        if (Input.GetMouseButtonDown(0) && playerMov.bulletsNum != 0 && !playerMov.reload)
         {
             anim.Play("PistolShoot");
             shootEffect.Play();
             muzzleFlash.Play();
             smoke.Play();
             Shoot();
-            bulletsNum -= 1;
-            bullets.text = bulletsNum.ToString();
+            playerMov.bulletsNum -= 1;
+            playerMov.bullets.text = playerMov.bulletsNum.ToString();
             shot = true;
         }
         if (shot && anim.GetCurrentAnimatorStateInfo(0).IsName("PistolShoot"))

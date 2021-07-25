@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class playerMovement : MonoBehaviour
 {
@@ -14,6 +15,11 @@ public class playerMovement : MonoBehaviour
     public bool isCrouched = false;
     public RectTransform stamina;
     public uiHandler uiHand;
+    public Text bullets;
+    public int bulletsNum;
+    public bool reload = false;
+    public Transform head;
+    public Transform rightArm;
 
 
     private Rigidbody rb;
@@ -30,12 +36,14 @@ public class playerMovement : MonoBehaviour
     private float movementVertical;
     private bool isCrouching = false;
     private bool isAscending = false;
+    private int bulletsMax = 12;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         pistol.SetActive(false);
+        bulletsNum = int.Parse(bullets.text);
     }
 
     private void Update()
@@ -43,6 +51,24 @@ public class playerMovement : MonoBehaviour
         movementHorizontal = Input.GetAxis("Horizontal");
         movementVertical = Input.GetAxis("Vertical");
 
+        if (Input.GetKeyDown(KeyCode.R) && pistolEquiped && bulletsNum < 12) 
+        {
+            rightArmAnim.enabled = true;
+            reload = true;
+            bullets.text = "reloading...";
+            bulletsNum = bulletsMax;
+            if (!isCrouched)
+            {
+                rightArmAnim.Play("PistolReloadRight");
+                leftArmAnim.Play("PistolReloadLeft");
+            }
+            else
+            {
+                rightArmAnim.Play("CrouchPistolReloadRight");
+                leftArmAnim.Play("CrouchPistolReloadLeft");
+            }
+            
+        }
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && groundCheck && stamina.sizeDelta.x > 30f && !isCrouched)
         {
@@ -110,12 +136,12 @@ public class playerMovement : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftControl) && groundCheck)
+        if (Input.GetKeyDown(KeyCode.LeftControl) && groundCheck && !reload && !isCrouched)
         {
             isCrouching= true;
         }
         
-        if (Input.GetKeyUp(KeyCode.LeftControl) && groundCheck)
+        if (Input.GetKeyUp(KeyCode.LeftControl) && groundCheck && !reload && isCrouched)
         {
             isAscending = true;
         }
@@ -124,27 +150,37 @@ public class playerMovement : MonoBehaviour
         {
             isCrouched = true;
             isCrouching = false;
+            head.position = new Vector3(head.position.x, head.position.y - 0.35f, head.position.z);
+            rightArm.position = new Vector3(rightArm.position.x, 3.2f, rightArm.position.z);
             playerAnim.Play("Crouch");
-            rightArmAnim.Play("CrouchArm");
-            leftArmAnim.Play("CrouchLeftArm");
+            if (!reload)
+            {
+                rightArmAnim.Play("CrouchArm");
+                leftArmAnim.Play("CrouchLeftArm");
+            }  
             playerAnim.SetFloat("multiplier", 0.5f);
             rightArmAnim.SetFloat("multiplier", 0.5f);
             leftArmAnim.SetFloat("multiplier", 0.5f);
             runMultiplier = 0.5f;
         }
-
         if (isAscending)
         {
             isCrouched = false;
             isAscending = false;
+            head.position = new Vector3(head.position.x, head.position.y + 0.35f, head.position.z);
+            rightArm.position = new Vector3(rightArm.position.x, 3.5986f, rightArm.position.z);
             playerAnim.Play("Ascend");
-            rightArmAnim.Play("AscendArm");
-            leftArmAnim.Play("AscendLeftArm");
+            if (!reload)
+            {
+                rightArmAnim.Play("AscendArm");
+                leftArmAnim.Play("AscendLeftArm");
+            }
             playerAnim.SetFloat("multiplier", 1f);
             rightArmAnim.SetFloat("multiplier", 1f);
             leftArmAnim.SetFloat("multiplier", 1f);
             runMultiplier = 1f;
         }
+
 
     }
     void FixedUpdate()
@@ -168,8 +204,21 @@ public class playerMovement : MonoBehaviour
             jumped = false;
         }
 
-        
-        
+        if ((!leftArmAnim.GetCurrentAnimatorStateInfo(0).IsName("PistolReloadLeft") && !leftArmAnim.GetCurrentAnimatorStateInfo(0).IsName("CrouchPistolReloadLeft")) && reload)
+        {
+            reload = false;
+            rightArmAnim.enabled = false;
+            bullets.text = bulletsMax.ToString();
+            if (!isCrouched)
+            {
+                rightArm.position = new Vector3(rightArm.position.x, 3.5986f, rightArm.position.z);
+            } else
+            {
+                rightArm.position = new Vector3(rightArm.position.x, 3.2f, rightArm.position.z);
+            }
+        }
+
+
 
         if (!(playerAnim.GetCurrentAnimatorStateInfo(0).IsName("Ascend") || playerAnim.GetCurrentAnimatorStateInfo(0).IsName("Crouch")))
         {
@@ -180,37 +229,53 @@ public class playerMovement : MonoBehaviour
                     if (reseted)
                     {
                         playerAnim.Play("CrouchWalk", 0, 0f);
-                        rightArmAnim.Play("CrouchWalkArm", 0, 0f);
-                        leftArmAnim.Play("CrouchWalkLeftArm", 0, 0f);
+                        if (!reload)
+                        {
+                            rightArmAnim.Play("CrouchWalkArm", 0, 0f);
+                            leftArmAnim.Play("CrouchWalkLeftArm", 0, 0f);
+                        }
+                        
                         reseted = false;
                     }
                     else
                     {
                         playerAnim.Play("CrouchWalk");
-                        rightArmAnim.Play("CrouchWalkArm");
-                        leftArmAnim.Play("CrouchWalkLeftArm");
+                        if (!reload)
+                        {
+                            rightArmAnim.Play("CrouchWalkArm");
+                            leftArmAnim.Play("CrouchWalkLeftArm");
+                        }
                     }
                 } else
                 {
                     if (reseted)
                     {
                         playerAnim.Play("CrouchIdle", 0, 0f);
-                        rightArmAnim.Play("CrouchIdleArm", 0, 0f);
-                        leftArmAnim.Play("CrouchIdleLeftArm", 0, 0f);
+                        if (!reload)
+                        {
+                            rightArmAnim.Play("CrouchIdleArm", 0, 0f);
+                            leftArmAnim.Play("CrouchIdleLeftArm", 0, 0f);
+                        }
                     }
                     else
                     {
                         playerAnim.Play("CrouchIdle");
-                        rightArmAnim.Play("CrouchIdleArm");
-                        leftArmAnim.Play("CrouchIdleLeftArm");
+                        if (!reload)
+                        {
+                            rightArmAnim.Play("CrouchIdleArm");
+                            leftArmAnim.Play("CrouchIdleLeftArm");
+                        }
                     }      
                 }  
             }
             else if (jumped)
             {
                 playerAnim.Play("Jump");
-                rightArmAnim.Play("JumpArm");
-                leftArmAnim.Play("JumpLeftArm");
+                if (!reload)
+                {
+                    rightArmAnim.Play("JumpArm");
+                    leftArmAnim.Play("JumpLeftArm");
+                } 
             }
             else if (movementHorizontal != 0f || movementVertical != 0f)
             {
@@ -222,15 +287,22 @@ public class playerMovement : MonoBehaviour
                     if (reseted)
                     {
                         playerAnim.Play("Walk", 0, 0f);
-                        rightArmAnim.Play("WalkArm", 0, 0f);
-                        leftArmAnim.Play("WalkLeftArm", 0, 0f);
+                        if (!reload)
+                        {
+                            rightArmAnim.Play("WalkArm", 0, 0f);
+                            leftArmAnim.Play("WalkLeftArm", 0, 0f);
+                        }
+                        
                         reseted = false;
                     }
                     else
                     {
                         playerAnim.Play("Walk");
-                        rightArmAnim.Play("WalkArm");
-                        leftArmAnim.Play("WalkLeftArm");
+                        if (!reload)
+                        {
+                            rightArmAnim.Play("WalkArm");
+                            leftArmAnim.Play("WalkLeftArm");
+                        }
                     }
                 }
                 else
@@ -241,43 +313,57 @@ public class playerMovement : MonoBehaviour
                     if (reseted)
                     {
                         playerAnim.Play("Walk", 0, 0f);
-                        rightArmAnim.Play("WalkArm", 0, 0f);
-                        leftArmAnim.Play("WalkLeftArm", 0, 0f);
+                        if (!reload)
+                        {
+                            rightArmAnim.Play("WalkArm", 0, 0f);
+                            leftArmAnim.Play("WalkLeftArm", 0, 0f);
+                        }
                         reseted = false;
                     }
                     else
                     {
                         playerAnim.Play("Walk");
-                        rightArmAnim.Play("WalkArm");
-                        leftArmAnim.Play("WalkLeftArm");
+                        if (!reload)
+                        {
+                            rightArmAnim.Play("WalkArm");
+                            leftArmAnim.Play("WalkLeftArm");
+                        }
                     }
                 }
             }
             else if (pistolEquiped)
             {
                 playerAnim.Play("IdlePistol");
-                leftArmAnim.Play("IdleLeftArm");
+                if (!reload)
+                {
+                    leftArmAnim.Play("IdleLeftArm");
+                }
             }
             else
             {
                 if (reseted)
                 {
                     playerAnim.Play("Idle", 0, 0f);
-                    rightArmAnim.Play("IdleArm", 0, 0f);
-                    leftArmAnim.Play("IdleLeftArm", 0, 0f);
+                    if (!reload)
+                    {
+                        rightArmAnim.Play("IdleArm", 0, 0f);
+                        leftArmAnim.Play("IdleLeftArm", 0, 0f);
+                    }  
                     reseted = false;
                 }
                 else
                 {
                     playerAnim.Play("Idle");
-                    rightArmAnim.Play("IdleArm");
-                    leftArmAnim.Play("IdleLeftArm");
+                    if (!reload)
+                    {
+                        rightArmAnim.Play("IdleArm");
+                        leftArmAnim.Play("IdleLeftArm");
+                    }
                 }
             }
         }
         
         rb.velocity = movement;
-
     }
 
     private void OnCollisionEnter(Collision collision)
