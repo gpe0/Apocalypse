@@ -11,6 +11,8 @@ public class playerScript : MonoBehaviour
     public enemyScript enemyS;
     public ParticleSystem bleed;
     public PostProcessVolume volume;
+    public bool isDead = false;
+
 
     private float life = 100f;
     private float zombieDamage = 20f;
@@ -24,16 +26,17 @@ public class playerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         if (isBleeding) {
             lifeBar.sizeDelta = new Vector2(lifeBar.sizeDelta.x - Time.deltaTime * lifeDrain, 0f) + new Vector2(0f, lifeBar.sizeDelta.y);
             lifeBar.position = new Vector3(lifeBar.position.x + Time.deltaTime * lifeDrain / -2, lifeBar.position.y, lifeBar.position.z);
         }
         if (lifeBar.sizeDelta.x <= 0f)
         {
+            isDead = true;
             Destroy(gameObject);
             GameObject deadBodyGO = Instantiate(deadBody, transform.position, transform.rotation);
             playerLA.enabled = false;
-            enemyS.enabled = false;
         }
     }
 

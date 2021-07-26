@@ -180,6 +180,7 @@ MonoBehaviour:
   blood: {fileID: 7449983239815852358, guid: b52f0be371db87d419b39bd0681d99c6, type: 3}
   agent: {fileID: 1456383078535824116}
   heardShot: 0
+  esScript: {fileID: 0}
 --- !u!195 &1456383078535824116
 NavMeshAgent:
   m_ObjectHideFlags: 0

@@ -15,8 +15,8 @@ public class enemyScript : MonoBehaviour
     public GameObject blood;
     public NavMeshAgent agent;
     public bool heardShot = false;
+    public enemySpawn esScript;
 
-    
     private Rigidbody rb;
     private float life = 100f;
     private bool dead = false;
@@ -31,80 +31,87 @@ public class enemyScript : MonoBehaviour
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();   
+        rb = GetComponent<Rigidbody>();
     }
 
     private void Update()
     {
-        float distanceToPlayer = Mathf.Sqrt(Mathf.Pow((player.position.x - transform.position.x), 2) + Mathf.Pow((player.position.y - transform.position.y), 2) + Mathf.Pow((player.position.z - transform.position.z), 2));
-
-
-        if (!dead)
+        if (!playerS.isDead)
         {
 
-            if (ps.shot)
-            {
-                if (distanceToPlayer < hearRange)
-                {
-                    heardShot = true;
-                }
-            }
 
-            if (heardShot || tookDamage || (Vector3.Angle(transform.forward, player.position - transform.position) < zombieVisionRange && Vector3.Angle(transform.forward, player.position - transform.position) > -zombieVisionRange))
+            float distanceToPlayer = Mathf.Sqrt(Mathf.Pow((player.position.x - transform.position.x), 2) + Mathf.Pow((player.position.y - transform.position.y), 2) + Mathf.Pow((player.position.z - transform.position.z), 2));
+
+
+            if (!dead)
             {
-            
-                if ((heardShot || tookDamage || distanceToPlayer <= range && !playerM.isCrouched) || (distanceToPlayer <= range/2 && playerM.isCrouched))
+
+                if (ps.shot)
                 {
-                    if (distanceToPlayer <= attackRange && lastAttack + attackCool <= Time.timeSinceLevelLoad)
+                    if (distanceToPlayer < hearRange)
                     {
-                        armsAnim.Play("AttackZombie");
-                        playerS.TakeDamage();
-                        lastAttack = Time.timeSinceLevelLoad;
+                        heardShot = true;
                     }
-                    zombieAnim.Play("WalkZombie");
-                    transform.rotation = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+                }
 
-                    agent.SetDestination(player.position);
+                if (heardShot || tookDamage || (Vector3.Angle(transform.forward, player.position - transform.position) < zombieVisionRange && Vector3.Angle(transform.forward, player.position - transform.position) > -zombieVisionRange))
+                {
+
+                    if ((heardShot || tookDamage || distanceToPlayer <= range && !playerM.isCrouched) || (distanceToPlayer <= range / 2 && playerM.isCrouched))
+                    {
+                        if (distanceToPlayer <= attackRange && lastAttack + attackCool <= Time.timeSinceLevelLoad)
+                        {
+                            armsAnim.Play("AttackZombie");
+                            playerS.TakeDamage();
+                            lastAttack = Time.timeSinceLevelLoad;
+                        }
+                        zombieAnim.Play("WalkZombie");
+                        transform.rotation = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+
+                        agent.SetDestination(player.position);
 
                         //rb.velocity = new Vector3(player.position.x - transform.position.x, 0f, player.position.z - transform.position.z) * speed * Time.deltaTime + new Vector3(0f, rb.velocity.y, 0f);
-                }
-                else
-                {
-                    zombieAnim.Play("IdleZombie");
-                    rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
-                }
-            } else
-            {
-                if ((distanceToPlayer <= range / 1.5 && !playerM.isCrouched) || (distanceToPlayer <= -1 && playerM.isCrouched))
-                {
-                    if (distanceToPlayer <= attackRange && lastAttack + attackCool <= Time.timeSinceLevelLoad)
-                    {
-                        armsAnim.Play("AttackZombie");
-                        playerS.TakeDamage();
-                        lastAttack = Time.timeSinceLevelLoad;
                     }
-                    zombieAnim.Play("WalkZombie");
-                    transform.rotation = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
-
-                    agent.SetDestination(player.position);
-
+                    else
+                    {
+                        zombieAnim.Play("IdleZombie");
+                        rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
+                    }
                 }
                 else
                 {
-                    zombieAnim.Play("IdleZombie");
-                    rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
+                    if ((distanceToPlayer <= range / 1.5 && !playerM.isCrouched) || (distanceToPlayer <= -1 && playerM.isCrouched))
+                    {
+                        if (distanceToPlayer <= attackRange && lastAttack + attackCool <= Time.timeSinceLevelLoad)
+                        {
+                            armsAnim.Play("AttackZombie");
+                            playerS.TakeDamage();
+                            lastAttack = Time.timeSinceLevelLoad;
+                        }
+                        zombieAnim.Play("WalkZombie");
+                        transform.rotation = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+
+                        agent.SetDestination(player.position);
+
+                    }
+                    else
+                    {
+                        zombieAnim.Play("IdleZombie");
+                        rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
+                    }
                 }
             }
-        }
-  
-        if (life <= 0f)
-        {
-            dead = true;
-            Destroy(gameObject);
-            GameObject deadBodyGO = Instantiate(deadBody, transform.position, transform.rotation);
-            GameObject bloodGO = Instantiate(blood, lastBlood , transform.rotation);
-            Destroy(bloodGO, 2f);
-            Destroy(deadBodyGO, 10f);
+
+            if (life <= 0f)
+            {
+                esScript.maxEnemiesAlive++;
+                dead = true;
+                Destroy(gameObject);
+                GameObject deadBodyGO = Instantiate(deadBody, transform.position, transform.rotation);
+                GameObject bloodGO = Instantiate(blood, lastBlood, transform.rotation);
+                Destroy(bloodGO, 2f);
+                Destroy(deadBodyGO, 10f);
+            }
         }
     }
     public void TakeDamage(RaycastHit hit)
@@ -117,7 +124,7 @@ public class enemyScript : MonoBehaviour
         else
         {
             life -= 20f;
-        } 
+        }
 
         if (life <= 0f)
         {
