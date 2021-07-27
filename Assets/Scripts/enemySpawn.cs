@@ -11,8 +11,8 @@ public class enemySpawn : MonoBehaviour
 
     private float minX = 2.3f;
     private float maxX = 98.8f;
-    private float minZ = -37f;
-    private float maxZ = -16.8f;
+    private float minZ = -33f;
+    private float maxZ = -18f;
     private float minimumDistanceToSpawn = 40f;
 
 

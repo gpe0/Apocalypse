@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class playerMovement : MonoBehaviour
 {
 
-    public float movementSpeed = 300f;
+
     public GameObject pistol;
     public Animator playerAnim;
     public Animator rightArmAnim;
@@ -20,15 +20,19 @@ public class playerMovement : MonoBehaviour
     public bool reload = false;
     public Transform head;
     public Transform rightArm;
+    public Transform groundObj;
+    public LayerMask ground;
 
-
-    private Rigidbody rb;
-    private bool groundCheck = false;
+    private bool groundCheck;
+    private float groundDistance = 0.4f;
+    private float movementSpeed = 12f;
+    private CharacterController characterController;
+    private Vector3 velocity;
+    private float gravity = -30f;
     private bool isRunning = false;
     private bool jumped = false;
     private float runMultiplier = 1f;
     private bool reseted = false;
-    private bool spaced = false;
     private float staminaDrain = 30f;
     private float staminaRegen = 15f;
     private float jumpStaminaDrain = 15f;
@@ -37,11 +41,12 @@ public class playerMovement : MonoBehaviour
     private bool isCrouching = false;
     private bool isAscending = false;
     private int bulletsMax = 12;
+    private float jumpHeight = 3f;
 
     // Start is called before the first frame update
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        characterController = GetComponent<CharacterController>();
         pistol.SetActive(false);
         bulletsNum = int.Parse(bullets.text);
     }
@@ -51,7 +56,21 @@ public class playerMovement : MonoBehaviour
         movementHorizontal = Input.GetAxis("Horizontal");
         movementVertical = Input.GetAxis("Vertical");
 
-        if (Input.GetKeyDown(KeyCode.R) && pistolEquiped && bulletsNum < 12) 
+        groundCheck = Physics.CheckSphere(groundObj.position, groundDistance, ground);
+
+        Vector3 move = transform.right * movementHorizontal + transform.forward * movementVertical;
+
+        move = move.normalized;
+
+        characterController.Move(move * Time.deltaTime * movementSpeed * runMultiplier);
+
+        if (groundCheck && velocity.y < 0)
+        {
+            velocity.y = -2f;
+        }
+
+
+        if (Input.GetKeyDown(KeyCode.R) && pistolEquiped && bulletsNum < 12)
         {
             rightArmAnim.enabled = true;
             reload = true;
@@ -67,7 +86,7 @@ public class playerMovement : MonoBehaviour
                 rightArmAnim.Play("CrouchPistolReloadRight");
                 leftArmAnim.Play("CrouchPistolReloadLeft");
             }
-            
+
         }
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && groundCheck && stamina.sizeDelta.x > 30f && !isCrouched)
@@ -86,7 +105,7 @@ public class playerMovement : MonoBehaviour
             {
                 stamina.sizeDelta = new Vector2(stamina.sizeDelta.x - Time.deltaTime * staminaDrain, 0f) + new Vector2(0f, stamina.sizeDelta.y);
                 stamina.position = new Vector3(stamina.position.x + Time.deltaTime * staminaDrain / -2, stamina.position.y, stamina.position.z);
-            }   
+            }
         }
         if (Input.GetKeyUp(KeyCode.LeftShift) || stamina.sizeDelta.x <= 0f)
         {
@@ -111,7 +130,7 @@ public class playerMovement : MonoBehaviour
         {
             jumped = true;
             groundCheck = false;
-            spaced = true;
+            velocity.y = Mathf.Sqrt(-2f * gravity * jumpHeight);
             stamina.sizeDelta = new Vector2(stamina.sizeDelta.x - jumpStaminaDrain, 0f) + new Vector2(0f, stamina.sizeDelta.y);
             stamina.position = new Vector3(stamina.position.x + jumpStaminaDrain / -2, stamina.position.y, stamina.position.z);
         }
@@ -138,26 +157,31 @@ public class playerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.LeftControl) && groundCheck && !reload && !isCrouched)
         {
-            isCrouching= true;
+            isCrouching = true;
         }
-        
+
         if (Input.GetKeyUp(KeyCode.LeftControl) && groundCheck && !reload && isCrouched)
         {
             isAscending = true;
         }
 
+    }
+
+
+    private void FixedUpdate()
+    {
         if (isCrouching)
         {
             isCrouched = true;
             isCrouching = false;
             head.position = new Vector3(head.position.x, head.position.y - 0.35f, head.position.z);
-            rightArm.position = new Vector3(rightArm.position.x, 3.2f, rightArm.position.z);
+            rightArm.position = new Vector3(rightArm.position.x, transform.position.y + 2.05f, rightArm.position.z);
             playerAnim.Play("Crouch");
             if (!reload)
             {
                 rightArmAnim.Play("CrouchArm");
                 leftArmAnim.Play("CrouchLeftArm");
-            }  
+            }
             playerAnim.SetFloat("multiplier", 0.5f);
             rightArmAnim.SetFloat("multiplier", 0.5f);
             leftArmAnim.SetFloat("multiplier", 0.5f);
@@ -168,7 +192,7 @@ public class playerMovement : MonoBehaviour
             isCrouched = false;
             isAscending = false;
             head.position = new Vector3(head.position.x, head.position.y + 0.35f, head.position.z);
-            rightArm.position = new Vector3(rightArm.position.x, 3.5986f, rightArm.position.z);
+            rightArm.position = new Vector3(rightArm.position.x, transform.position.y + 2.433894f, rightArm.position.z);
             playerAnim.Play("Ascend");
             if (!reload)
             {
@@ -181,23 +205,9 @@ public class playerMovement : MonoBehaviour
             runMultiplier = 1f;
         }
 
+        velocity.y += gravity * Time.deltaTime;
 
-    }
-    void FixedUpdate()
-    {
-        
-
-        Vector3 movement = transform.forward * movementVertical * runMultiplier + transform.right * movementHorizontal * runMultiplier;
-
-        movement = movement.normalized * movementSpeed * Time.deltaTime * runMultiplier;
-
-        movement = movement + new Vector3(0f, rb.velocity.y, 0f);
-
-        if (spaced)
-        {
-            spaced = false;
-            movement += new Vector3(0f, movementSpeed * Time.deltaTime / 1.4f, 0f);
-        }
+        characterController.Move(velocity * Time.deltaTime);
 
         if (groundCheck && jumped)
         {
@@ -211,14 +221,13 @@ public class playerMovement : MonoBehaviour
             bullets.text = bulletsMax.ToString();
             if (!isCrouched)
             {
-                rightArm.position = new Vector3(rightArm.position.x, 3.5986f, rightArm.position.z);
-            } else
+                rightArm.position = new Vector3(rightArm.position.x, transform.position.y + 2.433894f, rightArm.position.z);
+            }
+            else
             {
-                rightArm.position = new Vector3(rightArm.position.x, 3.2f, rightArm.position.z);
+                rightArm.position = new Vector3(rightArm.position.x, transform.position.y + 2.05f, rightArm.position.z);
             }
         }
-
-
 
         if (!(playerAnim.GetCurrentAnimatorStateInfo(0).IsName("Ascend") || playerAnim.GetCurrentAnimatorStateInfo(0).IsName("Crouch")))
         {
@@ -234,7 +243,7 @@ public class playerMovement : MonoBehaviour
                             rightArmAnim.Play("CrouchWalkArm", 0, 0f);
                             leftArmAnim.Play("CrouchWalkLeftArm", 0, 0f);
                         }
-                        
+
                         reseted = false;
                     }
                     else
@@ -246,7 +255,8 @@ public class playerMovement : MonoBehaviour
                             leftArmAnim.Play("CrouchWalkLeftArm");
                         }
                     }
-                } else
+                }
+                else
                 {
                     if (reseted)
                     {
@@ -265,8 +275,8 @@ public class playerMovement : MonoBehaviour
                             rightArmAnim.Play("CrouchIdleArm");
                             leftArmAnim.Play("CrouchIdleLeftArm");
                         }
-                    }      
-                }  
+                    }
+                }
             }
             else if (jumped)
             {
@@ -275,7 +285,7 @@ public class playerMovement : MonoBehaviour
                 {
                     rightArmAnim.Play("JumpArm");
                     leftArmAnim.Play("JumpLeftArm");
-                } 
+                }
             }
             else if (movementHorizontal != 0f || movementVertical != 0f)
             {
@@ -292,7 +302,7 @@ public class playerMovement : MonoBehaviour
                             rightArmAnim.Play("WalkArm", 0, 0f);
                             leftArmAnim.Play("WalkLeftArm", 0, 0f);
                         }
-                        
+
                         reseted = false;
                     }
                     else
@@ -348,7 +358,7 @@ public class playerMovement : MonoBehaviour
                     {
                         rightArmAnim.Play("IdleArm", 0, 0f);
                         leftArmAnim.Play("IdleLeftArm", 0, 0f);
-                    }  
+                    }
                     reseted = false;
                 }
                 else
@@ -362,16 +372,7 @@ public class playerMovement : MonoBehaviour
                 }
             }
         }
-        
-        rb.velocity = movement;
     }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.collider.tag == "Ground")
-        {
-            groundCheck = true;
-        }
-    }
-
 }
+
+
