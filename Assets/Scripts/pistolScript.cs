@@ -75,11 +75,6 @@ public class pistolScript : MonoBehaviour
             impactGO.transform.SetParent(hit.transform);
             impactGO.transform.localScale = new Vector3(1f, 1f, 1f);
             Destroy(impactGO, 2f);
-
-            if (hit.rigidbody != null)
-            {
-                hit.rigidbody.AddForceAtPosition(-hit.normal * impactForce, hit.point);
-            }
         }
     }
 }

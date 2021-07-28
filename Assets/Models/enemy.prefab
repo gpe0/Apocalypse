@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 1456383078535824105}
   - component: {fileID: 1456383078535824104}
   - component: {fileID: 1456383078535824116}
-  - component: {fileID: 1835019726489144298}
+  - component: {fileID: 5384510701455747069}
   m_Layer: 6
   m_Name: enemy
   m_TagString: Enemy
@@ -174,35 +174,32 @@ NavMeshAgent:
   m_GameObject: {fileID: 1456383078535824107}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.55
+  m_Radius: 0.65
   m_Speed: 7
-  m_Acceleration: 8
+  m_Acceleration: 8.75
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
+  m_StoppingDistance: 0.1
+  m_AutoTraverseOffMeshLink: 0
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 1.49
   m_BaseOffset: 0.1
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
---- !u!54 &1835019726489144298
-Rigidbody:
+  m_ObstacleAvoidanceType: 3
+--- !u!135 &5384510701455747069
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1456383078535824107}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
   serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
+  m_Radius: 0.22
+  m_Center: {x: -0.1, y: 1.22, z: 0}
 --- !u!1 &1456383079957076237
 GameObject:
   m_ObjectHideFlags: 0
@@ -886,10 +883,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1464581754127756609}
-  - component: {fileID: 1456383078683544662}
   m_Layer: 6
   m_Name: head
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -909,19 +905,6 @@ Transform:
   m_Father: {fileID: 2137157376166669294}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &1456383078683544662
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6530886074151297169}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.0019
-  m_Center: {x: 0, y: 0.0022, z: 0}
 --- !u!1 &6741422528350999919
 GameObject:
   m_ObjectHideFlags: 0

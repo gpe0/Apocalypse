@@ -75,7 +75,6 @@ public class enemyScript : MonoBehaviour
                     else
                     {
                         zombieAnim.Play("IdleZombie");
-                        rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
                     }
                 }
                 else
@@ -97,7 +96,6 @@ public class enemyScript : MonoBehaviour
                     else
                     {
                         zombieAnim.Play("IdleZombie");
-                        rb.velocity = new Vector3(0f, rb.velocity.y, 0f);                        rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
                     }
                 }
             }
